@@ -1,8 +1,8 @@
 import { HttpInterceptor, HttpRequest, HttpHandler, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { AuthService } from './auth.service';
-import { catchError } from 'rxjs/operators';
-import { throwError, Observable } from 'rxjs';
+import { catchError, switchMap, tap } from 'rxjs/operators';
+import { throwError, Observable, empty } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -10,6 +10,8 @@ import { throwError, Observable } from 'rxjs';
 export class WebReqInterceptor implements HttpInterceptor {
 
   constructor(private authService: AuthService) { }
+
+  refreshingAccessToken: boolean = false; 
 
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<any> {
     // Handle the request
@@ -20,11 +22,23 @@ export class WebReqInterceptor implements HttpInterceptor {
       catchError((error: HttpErrorResponse) => {
         console.log(error);
 
-        if (error.status === 401) {
+        if (error.status === 401 && !this.refreshingAccessToken) {
           // 401 error so we are unauthorized
 
           // refresh the access token
-          this.authService.logout();
+          this.refreshAccessToken()
+            .pipe(
+              switchMap(() => {
+                request = this.addAuthHeader(request);
+                return next.handle(request);
+              })
+            )
+            catchError((err: any) => {
+              console.log(err);
+              this.authService.logout();
+              return empty();
+            })
+            
         }
         
         return throwError(error);
@@ -32,6 +46,16 @@ export class WebReqInterceptor implements HttpInterceptor {
     )
   }
 
+  refreshAccessToken() {
+    this.refreshingAccessToken = true; 
+    // we want to call a method in the auth service to send a request to refresh the access token
+      return this.authService.getNewAccessToken().pipe(
+        tap(() => {
+          this.refreshingAccessToken = false; 
+          console.log("Access Token Refreshed!");
+        })
+      )
+    }
 
   addAuthHeader(request: HttpRequest<any>) {
     // get the access token
