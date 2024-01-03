@@ -3,7 +3,7 @@
 const mongoose = require('mongoose');
 
 mongoose.Promise = global.Promise;
-mongoose.connect('mongodb://127.0.0.1:27017/TaskManager', {
+mongoose.connect('mongodb+srv://chaukoldaravuth21:ykE20LzsNrkOSOPi@tasktrackercluster.et12qia.mongodb.net/', {
   // useNewUrlParser: true,
   // useUnifiedTopology: true,
 }).then(() => {

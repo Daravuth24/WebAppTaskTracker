@@ -160,7 +160,7 @@ app.patch("/lists/:id", authenticate, (req, res) => {
             $set: req.body,
         }
     ).then(() => {
-        res.sendStatus(200);
+        res.send({ message: "Updated successfully." });
     });
 });
 
@@ -247,40 +247,18 @@ app.post("/lists/:listId/tasks", authenticate, (req, res) => {
  */
 app.patch("/lists/:listId/tasks/:taskId", (req, res) => {
     //We want to update an existing task (specified by taskId)
-
-    List.findOne({
-        _id: req.params.listId,
-        _userId: req.user_id,
-    })
-        .then((list) => {
-            if (list) {
-                // list object with the specified conditions was found
-                // therefore the currently authenticated user can update the tasks within the list
-                return true;
+    Task.findOneAndUpdate(
+        {
+            _id: req.params.taskId,
+            _listId: req.params.listId,
+        },
+            {
+                $set: req.body,
             }
-            // else - the user object is undefined
-            return false;
-        })
-        .then((canUpdateTasks) => {
-            if (canUpdateTasks) {
-                // the currently authenticated user can update tasks
-                Task.findOneAndUpdate(
-                    {
-                        _id: req.params.taskId,
-                        _listId: req.params.listId,
-                    },
-                    {
-                        $set: req.body,
-                    }
-                ).then(() => {
-                    res.send({ message: "Updated successfully." });
-                });
-            } else {
-                res.sendStatus(404);
-            }
-        });
+    ).then(() => {
+        res.send({ message: "Updated successfully." });
+    });
 });
-
 /**
  * DELETE /lists/:listId/tasks/:taskId
  * Purpose: Delete a task

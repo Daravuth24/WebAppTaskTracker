@@ -8,10 +8,11 @@ import { shareReplay, tap } from 'rxjs/operators';
   providedIn: 'root',
 })
 export class AuthService {
+  private username: string = '';
   constructor(
     private webService: WebRequestService,
     private router: Router,
-    private http: HttpClient
+    private http: HttpClient,
   ) {}
 
   login(email: string, password: string) {
@@ -25,6 +26,21 @@ export class AuthService {
           res.headers.get('x-refresh-token')!
         );
         console.log('Logged In');
+      })
+    );
+  }
+
+  signup(username: string, email: string, password: string) {
+    return this.webService.signup(username, email, password).pipe(
+      shareReplay(),
+      tap((res: HttpResponse<any>) => {
+        // the auth tokens will be in the header of this response
+        this.setSession(
+          res.body._id,
+          res.headers.get('x-access-token')!,
+          res.headers.get('x-refresh-token')!
+        );
+        console.log('Signed up and Logged In');
       })
     );
   }
@@ -81,5 +97,13 @@ export class AuthService {
           this.setAccessToken(res.headers.get('x-access-token')!);
         })
       );
+  }
+
+  setUsername(username: string) {
+    localStorage.setItem('username', username);
+  }
+
+  getUsername() {
+    return localStorage.getItem('username');
   }
 }

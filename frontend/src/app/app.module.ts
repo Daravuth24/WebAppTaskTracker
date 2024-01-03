@@ -11,6 +11,8 @@ import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { WebReqInterceptor } from './web-req.interceptor';
 import { NewListComponent } from './pages/new-list/new-list.component';
 import { NewTaskComponent } from './pages/new-task/new-task.component';
+import { EditListComponent } from './pages/edit-list/edit-list.component';
+import { EditTaskComponent } from './pages/edit-task/edit-task.component';
 
 @NgModule({
   declarations: [
@@ -19,7 +21,9 @@ import { NewTaskComponent } from './pages/new-task/new-task.component';
     LoginPageComponent,
     SignupPageComponent,
     NewListComponent,
-    NewTaskComponent
+    NewTaskComponent,
+    EditListComponent,
+    EditTaskComponent
   ],
   imports: [
     BrowserModule,

@@ -1,5 +1,6 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { ActivatedRoute, Params } from '@angular/router';
+import { ActivatedRoute, Params, Router } from '@angular/router';
+import { Task } from 'src/app/models/task.model';
 import { TaskService } from 'src/app/task.service';
 
 @Component({
@@ -10,22 +11,22 @@ import { TaskService } from 'src/app/task.service';
 export class NewTaskComponent implements OnInit{
   @ViewChild('taskTitleInput') taskTitleInput!: ElementRef;
   
-    constructor(private taskService: TaskService, private router: ActivatedRoute) { }
-  
+    constructor(private taskService: TaskService, private route: ActivatedRoute, private router: Router) { }
+    
     listId!: string;
 
     ngOnInit() {
-      this.router.params.subscribe(
+      this.route.params.subscribe(
         (params: Params) => {
           this.listId = params['listId'];
           console.log(this.listId);
       })
     }
 
-    // createTask() {
-    //   const inputValue = this.taskTitleInput.nativeElement.value;
-    //   this.taskService.createTask(inputValue, this.listId).subscribe((newTask: any) => {
-    //     console.log(newTask);
-    //   })
-    //   }
+    createTask(taskTitle: string) {
+      const inputValue = this.taskTitleInput.nativeElement.value;
+      this.taskService.createTask(inputValue, this.listId).subscribe((response: any) => {
+      this.router.navigate(['../'], { relativeTo: this.route });
+      })
+      }
     }
